@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import AppLayout from '@/components/AppLayout';
-import StatusBadge from '@/components/StatusBadge';
-import { transactionApi } from '@/lib/api';
-import { Transaction, TransactionStatus } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import AppLayout from "@/components/AppLayout";
+import StatusBadge from "@/components/StatusBadge";
+import { transactionApi } from "@/lib/api";
+import { Transaction, TransactionStatus } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -21,11 +21,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Eye, Search, Send, CheckCircle, XCircle, Plus, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Eye,
+  Search,
+  Send,
+  CheckCircle,
+  XCircle,
+  Plus,
+  Loader2,
+  Zap,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,98 +44,103 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
 const statusOptions: { value: string; label: string }[] = [
-  { value: 'ALL', label: 'All Statuses' },
-  { value: 'DRAFT', label: 'Draft' },
-  { value: 'PENDING_APPROVAL', label: 'Pending Approval' },
-  { value: 'APPROVED', label: 'Approved' },
-  { value: 'REJECTED', label: 'Rejected' },
-  { value: 'EXECUTED', label: 'Executed' },
+  { value: "ALL", label: "All Statuses" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "PENDING_APPROVAL", label: "Pending Approval" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
+  { value: "EXECUTED", label: "Executed" },
 ];
 
 const TransactionList = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
-    type: 'approve' | 'reject' | 'submit' | null;
+    type: "approve" | "reject" | "submit" | "execute" | null;
     transactionId: string | null;
     reference: string;
-  }>({ open: false, type: null, transactionId: null, reference: '' });
+  }>({ open: false, type: null, transactionId: null, reference: "" });
 
   const fetchTransactions = async () => {
     try {
-      const status = statusFilter !== 'ALL' ? statusFilter as TransactionStatus : undefined;
+      const status =
+        statusFilter !== "ALL"
+          ? (statusFilter as TransactionStatus)
+          : undefined;
       const data = await transactionApi.getAll(status);
+      console.log("Transactions from API:", data);
+      console.log("First transaction:", data[0]);
       setTransactions(data);
     } catch (error) {
-      console.error('Failed to fetch transactions:', error);
+      console.error("Failed to fetch transactions:", error);
       // Mock data for demo
       setTransactions([
         {
-          id: '1',
-          reference: 'TRX-001',
+          id: "1",
+          reference: "TRX-001",
           amount: 5000,
-          currency: 'MXN',
-          status: 'DRAFT',
-          created_by: 'user1',
-          created_by_email: 'operator@test.com',
+          currency: "MXN",
+          status: "DRAFT",
+          created_by: "user1",
+          created_by_email: "operator@test.com",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
         {
-          id: '2',
-          reference: 'TRX-002',
+          id: "2",
+          reference: "TRX-002",
           amount: 12500,
-          currency: 'USD',
-          status: 'PENDING_APPROVAL',
-          created_by: 'user1',
-          created_by_email: 'operator@test.com',
+          currency: "USD",
+          status: "PENDING_APPROVAL",
+          created_by: "user1",
+          created_by_email: "operator@test.com",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
         {
-          id: '3',
-          reference: 'TRX-003',
+          id: "3",
+          reference: "TRX-003",
           amount: 8750,
-          currency: 'EUR',
-          status: 'APPROVED',
-          created_by: 'user1',
-          created_by_email: 'operator@test.com',
-          approved_by: 'user2',
-          approved_by_email: 'approver@test.com',
+          currency: "EUR",
+          status: "APPROVED",
+          created_by: "user1",
+          created_by_email: "operator@test.com",
+          approved_by: "user2",
+          approved_by_email: "approver@test.com",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
         {
-          id: '4',
-          reference: 'TRX-004',
+          id: "4",
+          reference: "TRX-004",
           amount: 3200,
-          currency: 'MXN',
-          status: 'EXECUTED',
-          created_by: 'user1',
-          created_by_email: 'operator@test.com',
-          approved_by: 'user2',
-          approved_by_email: 'approver@test.com',
+          currency: "MXN",
+          status: "EXECUTED",
+          created_by: "user1",
+          created_by_email: "operator@test.com",
+          approved_by: "user2",
+          approved_by_email: "approver@test.com",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
         {
-          id: '5',
-          reference: 'TRX-005',
+          id: "5",
+          reference: "TRX-005",
           amount: 15000,
-          currency: 'USD',
-          status: 'REJECTED',
-          created_by: 'user1',
-          created_by_email: 'operator@test.com',
+          currency: "USD",
+          status: "REJECTED",
+          created_by: "user1",
+          created_by_email: "operator@test.com",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
@@ -145,40 +159,61 @@ const TransactionList = () => {
   );
 
   const formatAmount = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency,
     }).format(amount);
   };
 
-  const handleAction = async (action: 'submit' | 'approve' | 'reject', id: string) => {
+  const handleAction = async (
+    action: "submit" | "approve" | "reject" | "execute",
+    id: string
+  ) => {
     setActionLoading(id);
     try {
-      if (action === 'submit') {
+      if (action === "submit") {
         await transactionApi.submit(id);
-        toast({ title: 'Success', description: 'Transaction submitted for approval.' });
-      } else if (action === 'approve') {
+        toast({
+          title: "Success",
+          description: "Transaction submitted for approval.",
+        });
+      } else if (action === "approve") {
         await transactionApi.approve(id);
-        toast({ title: 'Success', description: 'Transaction approved.' });
-      } else if (action === 'reject') {
+        toast({ title: "Success", description: "Transaction approved." });
+      } else if (action === "reject") {
         await transactionApi.reject(id);
-        toast({ title: 'Success', description: 'Transaction rejected.' });
+        toast({ title: "Success", description: "Transaction rejected." });
+      } else if (action === "execute") {
+        await transactionApi.execute(id);
+        toast({
+          title: "Success",
+          description: "Transaction executed successfully.",
+        });
       }
       fetchTransactions();
     } catch (error) {
       console.error(`Failed to ${action} transaction:`, error);
       toast({
-        title: 'Error',
+        title: "Error",
         description: `Failed to ${action} transaction.`,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } finally {
       setActionLoading(null);
-      setConfirmDialog({ open: false, type: null, transactionId: null, reference: '' });
+      setConfirmDialog({
+        open: false,
+        type: null,
+        transactionId: null,
+        reference: "",
+      });
     }
   };
 
-  const openConfirmDialog = (type: 'approve' | 'reject' | 'submit', id: string, reference: string) => {
+  const openConfirmDialog = (
+    type: "approve" | "reject" | "submit" | "execute",
+    id: string,
+    reference: string
+  ) => {
     setConfirmDialog({ open: true, type, transactionId: id, reference });
   };
 
@@ -189,15 +224,17 @@ const TransactionList = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-up">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              {user?.role === 'OPERATOR' ? 'My Transactions' : 'All Transactions'}
+              {user?.role === "OPERATOR"
+                ? "My Transactions"
+                : "All Transactions"}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {user?.role === 'OPERATOR'
-                ? 'View and manage your transaction requests'
-                : 'Review all transactions in the system'}
+              {user?.role === "OPERATOR"
+                ? "View and manage your transaction requests"
+                : "Review all transactions in the system"}
             </p>
           </div>
-          {user?.role === 'OPERATOR' && (
+          {user?.role === "OPERATOR" && (
             <Link to="/transactions/create">
               <Button className="gradient-primary text-primary-foreground">
                 <Plus className="h-4 w-4 mr-2" />
@@ -208,7 +245,10 @@ const TransactionList = () => {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 animate-slide-up" style={{ animationDelay: '50ms' }}>
+        <div
+          className="flex flex-col sm:flex-row gap-4 animate-slide-up"
+          style={{ animationDelay: "50ms" }}
+        >
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -233,14 +273,19 @@ const TransactionList = () => {
         </div>
 
         {/* Table */}
-        <div className="card-elevated overflow-hidden animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <div
+          className="card-elevated overflow-hidden animate-slide-up"
+          style={{ animationDelay: "100ms" }}
+        >
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead>Reference</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Status</TableHead>
-                {user?.role === 'APPROVER' && <TableHead>Created By</TableHead>}
+                {(user?.role === "APPROVER" || user?.role === "APROBADOR") && (
+                  <TableHead>Created By</TableHead>
+                )}
                 <TableHead>Created At</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -249,18 +294,37 @@ const TransactionList = () => {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
-                    {user?.role === 'APPROVER' && <TableCell><Skeleton className="h-4 w-32" /></TableCell>}
-                    <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                    </TableCell>
+                    {(user?.role === "APPROVER" ||
+                      user?.role === "APROBADOR") && (
+                      <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      <Skeleton className="h-4 w-28" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-8 w-20 ml-auto" />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : filteredTransactions.length === 0 ? (
                 <TableRow>
-                  <TableCell 
-                    colSpan={user?.role === 'APPROVER' ? 6 : 5} 
+                  <TableCell
+                    colSpan={
+                      user?.role === "APPROVER" || user?.role === "APROBADOR"
+                        ? 6
+                        : 5
+                    }
                     className="text-center py-12 text-muted-foreground"
                   >
                     No transactions found
@@ -268,9 +332,13 @@ const TransactionList = () => {
                 </TableRow>
               ) : (
                 filteredTransactions.map((transaction) => (
-                  <TableRow 
+                  <TableRow
                     key={transaction.id}
-                    className={transaction.status === 'PENDING_APPROVAL' ? 'bg-status-pending-bg/30' : ''}
+                    className={
+                      transaction.status === "PENDING_APPROVAL"
+                        ? "bg-status-pending-bg/30"
+                        : ""
+                    }
                   >
                     <TableCell className="font-mono font-medium">
                       {transaction.reference}
@@ -281,13 +349,17 @@ const TransactionList = () => {
                     <TableCell>
                       <StatusBadge status={transaction.status} />
                     </TableCell>
-                    {user?.role === 'APPROVER' && (
+                    {(user?.role === "APPROVER" ||
+                      user?.role === "APROBADOR") && (
                       <TableCell className="text-muted-foreground">
                         {transaction.created_by_email}
                       </TableCell>
                     )}
                     <TableCell className="text-muted-foreground">
-                      {format(new Date(transaction.created_at), 'MMM d, yyyy HH:mm')}
+                      {format(
+                        new Date(transaction.created_at),
+                        "MMM d, yyyy HH:mm"
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-2">
@@ -296,55 +368,104 @@ const TransactionList = () => {
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
-                        
-                        {user?.role === 'OPERATOR' && transaction.status === 'DRAFT' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openConfirmDialog('submit', transaction.id, transaction.reference)}
-                            disabled={actionLoading === transaction.id}
-                          >
-                            {actionLoading === transaction.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <>
-                                <Send className="h-4 w-4 mr-1" />
-                                Submit
-                              </>
-                            )}
-                          </Button>
-                        )}
-                        
-                        {user?.role === 'APPROVER' && transaction.status === 'PENDING_APPROVAL' && (
-                          <>
+
+                        {(user?.role === "OPERATOR" ||
+                          user?.role === "OPERADOR") &&
+                          transaction.status === "DRAFT" && (
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-status-approved border-status-approved hover:bg-status-approved-bg"
-                              onClick={() => openConfirmDialog('approve', transaction.id, transaction.reference)}
+                              onClick={() =>
+                                openConfirmDialog(
+                                  "submit",
+                                  transaction.id,
+                                  transaction.reference
+                                )
+                              }
                               disabled={actionLoading === transaction.id}
                             >
                               {actionLoading === transaction.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <CheckCircle className="h-4 w-4" />
+                                <>
+                                  <Send className="h-4 w-4 mr-1" />
+                                  Submit
+                                </>
                               )}
                             </Button>
+                          )}
+
+                        {(user?.role === "APPROVER" ||
+                          user?.role === "APROBADOR") &&
+                          transaction.status === "PENDING_APPROVAL" && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-status-approved border-status-approved hover:bg-status-approved-bg"
+                                onClick={() =>
+                                  openConfirmDialog(
+                                    "approve",
+                                    transaction.id,
+                                    transaction.reference
+                                  )
+                                }
+                                disabled={actionLoading === transaction.id}
+                              >
+                                {actionLoading === transaction.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-destructive border-destructive hover:bg-status-rejected-bg"
+                                onClick={() =>
+                                  openConfirmDialog(
+                                    "reject",
+                                    transaction.id,
+                                    transaction.reference
+                                  )
+                                }
+                                disabled={actionLoading === transaction.id}
+                              >
+                                {actionLoading === transaction.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <XCircle className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </>
+                          )}
+
+                        {(user?.role === "APPROVER" ||
+                          user?.role === "APROBADOR") &&
+                          transaction.status === "APPROVED" && (
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-destructive border-destructive hover:bg-status-rejected-bg"
-                              onClick={() => openConfirmDialog('reject', transaction.id, transaction.reference)}
+                              className="text-status-executed border-status-executed hover:bg-status-executed/10"
+                              onClick={() =>
+                                openConfirmDialog(
+                                  "execute",
+                                  transaction.id,
+                                  transaction.reference
+                                )
+                              }
                               disabled={actionLoading === transaction.id}
                             >
                               {actionLoading === transaction.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <XCircle className="h-4 w-4" />
+                                <>
+                                  <Zap className="h-4 w-4 mr-1" />
+                                  Execute
+                                </>
                               )}
                             </Button>
-                          </>
-                        )}
+                          )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -356,36 +477,49 @@ const TransactionList = () => {
       </div>
 
       {/* Confirmation Dialog */}
-      <AlertDialog 
-        open={confirmDialog.open} 
-        onOpenChange={(open) => !open && setConfirmDialog({ ...confirmDialog, open: false })}
+      <AlertDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) =>
+          !open && setConfirmDialog({ ...confirmDialog, open: false })
+        }
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmDialog.type === 'approve' && 'Approve Transaction'}
-              {confirmDialog.type === 'reject' && 'Reject Transaction'}
-              {confirmDialog.type === 'submit' && 'Submit for Approval'}
+              {confirmDialog.type === "approve" && "Approve Transaction"}
+              {confirmDialog.type === "reject" && "Reject Transaction"}
+              {confirmDialog.type === "submit" && "Submit for Approval"}
+              {confirmDialog.type === "execute" && "Execute Transaction"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to {confirmDialog.type} transaction {confirmDialog.reference}?
-              {confirmDialog.type === 'reject' && ' This action cannot be undone.'}
+              Are you sure you want to {confirmDialog.type} transaction{" "}
+              {confirmDialog.reference}?
+              {confirmDialog.type === "reject" &&
+                " This action cannot be undone."}
+              {confirmDialog.type === "execute" &&
+                " This will process the payment."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => confirmDialog.transactionId && confirmDialog.type && 
-                handleAction(confirmDialog.type, confirmDialog.transactionId)}
+              onClick={() =>
+                confirmDialog.transactionId &&
+                confirmDialog.type &&
+                handleAction(confirmDialog.type, confirmDialog.transactionId)
+              }
               className={
-                confirmDialog.type === 'reject' 
-                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' 
-                  : 'gradient-primary text-primary-foreground'
+                confirmDialog.type === "reject"
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  : confirmDialog.type === "execute"
+                  ? "bg-status-executed text-primary-foreground hover:bg-status-executed/90"
+                  : "gradient-primary text-primary-foreground"
               }
             >
-              {confirmDialog.type === 'approve' && 'Approve'}
-              {confirmDialog.type === 'reject' && 'Reject'}
-              {confirmDialog.type === 'submit' && 'Submit'}
+              {confirmDialog.type === "approve" && "Approve"}
+              {confirmDialog.type === "reject" && "Reject"}
+              {confirmDialog.type === "submit" && "Submit"}
+              {confirmDialog.type === "execute" && "Execute"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

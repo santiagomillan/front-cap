@@ -1,11 +1,11 @@
-export type UserRole = 'OPERATOR' | 'APPROVER';
+export type UserRole = "OPERATOR" | "APPROVER" | "OPERADOR" | "APROBADOR";
 
-export type TransactionStatus = 
-  | 'DRAFT' 
-  | 'PENDING_APPROVAL' 
-  | 'APPROVED' 
-  | 'REJECTED' 
-  | 'EXECUTED';
+export type TransactionStatus =
+  | "DRAFT"
+  | "PENDING_APPROVAL"
+  | "APPROVED"
+  | "REJECTED"
+  | "EXECUTED";
 
 export interface User {
   id: string;
@@ -16,6 +16,7 @@ export interface User {
 
 export interface Transaction {
   id: string;
+  transaction_id?: string; // Backend field
   reference: string;
   amount: number;
   currency: string;

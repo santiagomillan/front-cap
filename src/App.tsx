@@ -51,7 +51,7 @@ const App = () => (
             <Route
               path="/transactions/create"
               element={
-                <ProtectedRoute allowedRoles={["OPERATOR"]}>
+                <ProtectedRoute allowedRoles={["OPERATOR", "OPERADOR"]}>
                   <CreateTransaction />
                 </ProtectedRoute>
               }
@@ -61,7 +61,7 @@ const App = () => (
             <Route
               path="/approvals"
               element={
-                <ProtectedRoute allowedRoles={["APPROVER"]}>
+                <ProtectedRoute allowedRoles={["APPROVER", "APROBADOR"]}>
                   <PendingApprovals />
                 </ProtectedRoute>
               }

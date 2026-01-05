@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
   FilePlus,
   FileText,
   CheckCircle,
@@ -18,7 +17,7 @@ interface NavItem {
   label: string;
   path: string;
   icon: React.ElementType;
-  roles: ("OPERATOR" | "APPROVER")[];
+  roles: ("OPERATOR" | "APPROVER" | "OPERADOR" | "APROBADOR")[];
 }
 
 const navItems: NavItem[] = [
@@ -26,25 +25,25 @@ const navItems: NavItem[] = [
     label: "Create Transaction",
     path: "/transactions/create",
     icon: FilePlus,
-    roles: ["OPERATOR"],
+    roles: ["OPERATOR", "OPERADOR"],
   },
   {
     label: "My Transactions",
     path: "/transactions",
     icon: FileText,
-    roles: ["OPERATOR"],
+    roles: ["OPERATOR", "OPERADOR"],
   },
   {
     label: "Pending Approvals",
     path: "/approvals",
     icon: CheckCircle,
-    roles: ["APPROVER"],
+    roles: ["APPROVER", "APROBADOR"],
   },
   {
     label: "All Transactions",
     path: "/transactions",
     icon: FileText,
-    roles: ["APPROVER"],
+    roles: ["APPROVER", "APROBADOR"],
   },
 ];
 
@@ -113,7 +112,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden text-sidebar-foreground hover:bg-sidebar-accent"
+              className="md:hidden text-sidebar-foreground hover:bg-sidebar-accent"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -128,7 +127,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       <div className="flex">
         {/* Sidebar - Desktop */}
-        <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card min-h-[calc(100vh-4rem)]">
+        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card min-h-[calc(100vh-4rem)]">
           <nav className="flex-1 p-4 space-y-1">
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
@@ -156,7 +155,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
           <div
-            className="fixed inset-0 z-40 bg-foreground/50 lg:hidden"
+            className="fixed inset-0 z-40 bg-foreground/50 md:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
@@ -164,7 +163,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {/* Sidebar - Mobile */}
         <aside
           className={cn(
-            "fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] w-64 bg-card border-r border-border transform transition-transform duration-300 lg:hidden",
+            "fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] w-64 bg-card border-r border-border transform transition-transform duration-300 md:hidden",
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >

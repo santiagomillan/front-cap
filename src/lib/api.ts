@@ -68,42 +68,65 @@ export const authApi = {
   },
 };
 
-// Transaction endpoints
+// Helper function to normalize transaction data from backend
+const normalizeTransaction = (
+  transaction: Partial<Transaction> & {
+    transaction_id?: string;
+    amount?: string | number;
+  }
+): Transaction => {
+  return {
+    ...transaction,
+    id: transaction.id || transaction.transaction_id || "",
+    reference: transaction.reference || "",
+    currency: transaction.currency || "",
+    status: transaction.status || "DRAFT",
+    created_by: transaction.created_by || "",
+    created_at: transaction.created_at || new Date().toISOString(),
+    updated_at: transaction.updated_at || new Date().toISOString(),
+    amount:
+      typeof transaction.amount === "string"
+        ? parseFloat(transaction.amount)
+        : transaction.amount || 0,
+  };
+};
+
+// Transaction endpoints (v2 - protected, authentication required)
 export const transactionApi = {
   getAll: async (status?: TransactionStatus): Promise<Transaction[]> => {
     const params = status ? { status } : {};
     const response = await api.get("/api/v2/transactions", { params });
-    return response.data;
+    return response.data.map(normalizeTransaction);
   },
 
   getById: async (id: string): Promise<Transaction> => {
     const response = await api.get(`/api/v2/transactions/${id}`);
-    return response.data;
+    return normalizeTransaction(response.data);
   },
 
   create: async (data: CreateTransactionRequest): Promise<Transaction> => {
     const response = await api.post("/api/v2/transactions", data);
-    return response.data;
+    return normalizeTransaction(response.data);
   },
 
   submit: async (id: string): Promise<Transaction> => {
     const response = await api.post(`/api/v2/transactions/${id}/submit`);
-    return response.data;
+    return normalizeTransaction(response.data);
   },
 
   approve: async (id: string): Promise<Transaction> => {
     const response = await api.post(`/api/v2/transactions/${id}/approve`);
-    return response.data;
+    return normalizeTransaction(response.data);
   },
 
   reject: async (id: string): Promise<Transaction> => {
     const response = await api.post(`/api/v2/transactions/${id}/reject`);
-    return response.data;
+    return normalizeTransaction(response.data);
   },
 
   execute: async (id: string): Promise<Transaction> => {
     const response = await api.post(`/api/v2/transactions/${id}/execute`);
-    return response.data;
+    return normalizeTransaction(response.data);
   },
 
   getStats: async (): Promise<TransactionStats> => {

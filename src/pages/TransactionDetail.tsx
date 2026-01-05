@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import AppLayout from '@/components/AppLayout';
-import StatusBadge from '@/components/StatusBadge';
-import StatusStepper from '@/components/StatusStepper';
-import { transactionApi } from '@/lib/api';
-import { Transaction } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import AppLayout from "@/components/AppLayout";
+import StatusBadge from "@/components/StatusBadge";
+import StatusStepper from "@/components/StatusStepper";
+import { transactionApi } from "@/lib/api";
+import { Transaction } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft,
   Send,
@@ -20,9 +20,10 @@ import {
   User,
   DollarSign,
   Hash,
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+  ChevronRight,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +33,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
 
 const TransactionDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,26 +46,26 @@ const TransactionDetail = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
-    type: 'approve' | 'reject' | 'submit' | 'execute' | null;
+    type: "approve" | "reject" | "submit" | "execute" | null;
   }>({ open: false, type: null });
 
   const fetchTransaction = async () => {
     if (!id) return;
-    
+
     try {
       const data = await transactionApi.getById(id);
       setTransaction(data);
     } catch (error) {
-      console.error('Failed to fetch transaction:', error);
+      console.error("Failed to fetch transaction:", error);
       // Mock data for demo
       setTransaction({
         id: id,
-        reference: 'TRX-001',
+        reference: "TRX-001",
         amount: 5000,
-        currency: 'MXN',
-        status: 'PENDING_APPROVAL',
-        created_by: 'user1',
-        created_by_email: 'operator@test.com',
+        currency: "MXN",
+        status: "PENDING_APPROVAL",
+        created_by: "user1",
+        created_by_email: "operator@test.com",
         approved_by: undefined,
         approved_by_email: undefined,
         created_at: new Date().toISOString(),
@@ -77,33 +78,42 @@ const TransactionDetail = () => {
 
   useEffect(() => {
     fetchTransaction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const handleAction = async (action: 'submit' | 'approve' | 'reject' | 'execute') => {
+  const handleAction = async (
+    action: "submit" | "approve" | "reject" | "execute"
+  ) => {
     if (!id) return;
-    
+
     setActionLoading(true);
     try {
-      if (action === 'submit') {
+      if (action === "submit") {
         await transactionApi.submit(id);
-        toast({ title: 'Success', description: 'Transaction submitted for approval.' });
-      } else if (action === 'approve') {
+        toast({
+          title: "Success",
+          description: "Transaction submitted for approval.",
+        });
+      } else if (action === "approve") {
         await transactionApi.approve(id);
-        toast({ title: 'Success', description: 'Transaction approved.' });
-      } else if (action === 'reject') {
+        toast({ title: "Success", description: "Transaction approved." });
+      } else if (action === "reject") {
         await transactionApi.reject(id);
-        toast({ title: 'Success', description: 'Transaction rejected.' });
-      } else if (action === 'execute') {
+        toast({ title: "Success", description: "Transaction rejected." });
+      } else if (action === "execute") {
         await transactionApi.execute(id);
-        toast({ title: 'Success', description: 'Transaction executed successfully.' });
+        toast({
+          title: "Success",
+          description: "Transaction executed successfully.",
+        });
       }
       fetchTransaction();
     } catch (error) {
       console.error(`Failed to ${action} transaction:`, error);
       toast({
-        title: 'Error',
+        title: "Error",
         description: `Failed to ${action} transaction.`,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } finally {
       setActionLoading(false);
@@ -112,8 +122,8 @@ const TransactionDetail = () => {
   };
 
   const formatAmount = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency,
     }).format(amount);
   };
@@ -134,9 +144,13 @@ const TransactionDetail = () => {
     return (
       <AppLayout>
         <div className="text-center py-12">
-          <h2 className="text-xl font-semibold text-foreground mb-2">Transaction Not Found</h2>
-          <p className="text-muted-foreground mb-4">The transaction you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/transactions')}>
+          <h2 className="text-xl font-semibold text-foreground mb-2">
+            Transaction Not Found
+          </h2>
+          <p className="text-muted-foreground mb-4">
+            The transaction you're looking for doesn't exist.
+          </p>
+          <Button onClick={() => navigate("/transactions")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Transactions
           </Button>
@@ -148,6 +162,20 @@ const TransactionDetail = () => {
   return (
     <AppLayout>
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground animate-slide-up">
+          <Link
+            to="/transactions"
+            className="hover:text-foreground transition-colors"
+          >
+            Transactions
+          </Link>
+          <ChevronRight className="h-4 w-4" />
+          <span className="text-foreground font-medium">
+            {transaction.reference}
+          </span>
+        </nav>
+
         {/* Back Button & Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-up">
           <div className="flex items-center gap-4">
@@ -169,55 +197,85 @@ const TransactionDetail = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            {user?.role === 'OPERATOR' && transaction.status === 'DRAFT' && (
-              <Button
-                onClick={() => setConfirmDialog({ open: true, type: 'submit' })}
-                className="gradient-primary text-primary-foreground"
-                disabled={actionLoading}
-              >
-                {actionLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                Submit for Approval
-              </Button>
-            )}
-
-            {user?.role === 'APPROVER' && transaction.status === 'PENDING_APPROVAL' && (
-              <>
+            {(user?.role === "OPERATOR" || user?.role === "OPERADOR") &&
+              transaction.status === "DRAFT" && (
                 <Button
-                  variant="outline"
-                  className="border-status-approved text-status-approved hover:bg-status-approved-bg"
-                  onClick={() => setConfirmDialog({ open: true, type: 'approve' })}
+                  onClick={() =>
+                    setConfirmDialog({ open: true, type: "submit" })
+                  }
+                  className="gradient-primary text-primary-foreground"
                   disabled={actionLoading}
                 >
-                  {actionLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
-                  Approve
+                  {actionLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-2" />
+                  )}
+                  Submit for Approval
                 </Button>
+              )}
+
+            {(user?.role === "APPROVER" || user?.role === "APROBADOR") &&
+              transaction.status === "PENDING_APPROVAL" && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="border-status-approved text-status-approved hover:bg-status-approved-bg"
+                    onClick={() =>
+                      setConfirmDialog({ open: true, type: "approve" })
+                    }
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                    )}
+                    Approve
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-destructive text-destructive hover:bg-status-rejected-bg"
+                    onClick={() =>
+                      setConfirmDialog({ open: true, type: "reject" })
+                    }
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <XCircle className="h-4 w-4 mr-2" />
+                    )}
+                    Reject
+                  </Button>
+                </>
+              )}
+
+            {(user?.role === "APPROVER" || user?.role === "APROBADOR") &&
+              transaction.status === "APPROVED" && (
                 <Button
-                  variant="outline"
-                  className="border-destructive text-destructive hover:bg-status-rejected-bg"
-                  onClick={() => setConfirmDialog({ open: true, type: 'reject' })}
+                  onClick={() =>
+                    setConfirmDialog({ open: true, type: "execute" })
+                  }
+                  className="bg-status-executed text-primary-foreground hover:bg-status-executed/90"
                   disabled={actionLoading}
                 >
-                  {actionLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
-                  Reject
+                  {actionLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Zap className="h-4 w-4 mr-2" />
+                  )}
+                  Execute Transaction
                 </Button>
-              </>
-            )}
-
-            {transaction.status === 'APPROVED' && (
-              <Button
-                onClick={() => setConfirmDialog({ open: true, type: 'execute' })}
-                className="bg-status-executed text-primary-foreground hover:bg-status-executed/90"
-                disabled={actionLoading}
-              >
-                {actionLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Zap className="h-4 w-4 mr-2" />}
-                Execute Transaction
-              </Button>
-            )}
+              )}
           </div>
         </div>
 
         {/* Status Stepper */}
-        <Card className="shadow-lg animate-slide-up" style={{ animationDelay: '50ms' }}>
+        <Card
+          className="shadow-lg animate-slide-up"
+          style={{ animationDelay: "50ms" }}
+        >
           <CardHeader>
             <CardTitle className="text-lg">Transaction Flow</CardTitle>
           </CardHeader>
@@ -228,7 +286,10 @@ const TransactionDetail = () => {
 
         {/* Transaction Details */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="shadow-lg animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <Card
+            className="shadow-lg animate-slide-up"
+            style={{ animationDelay: "100ms" }}
+          >
             <CardHeader>
               <CardTitle className="text-lg">Transaction Details</CardTitle>
             </CardHeader>
@@ -252,7 +313,9 @@ const TransactionDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Reference</p>
-                    <p className="font-mono font-medium text-foreground">{transaction.reference}</p>
+                    <p className="font-mono font-medium text-foreground">
+                      {transaction.reference}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -261,14 +324,19 @@ const TransactionDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Currency</p>
-                    <p className="font-medium text-foreground">{transaction.currency}</p>
+                    <p className="font-medium text-foreground">
+                      {transaction.currency}
+                    </p>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg animate-slide-up" style={{ animationDelay: '150ms' }}>
+          <Card
+            className="shadow-lg animate-slide-up"
+            style={{ animationDelay: "150ms" }}
+          >
             <CardHeader>
               <CardTitle className="text-lg">Activity</CardTitle>
             </CardHeader>
@@ -279,20 +347,26 @@ const TransactionDetail = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Created By</p>
-                  <p className="font-medium text-foreground">{transaction.created_by_email || 'Unknown'}</p>
+                  <p className="font-medium text-foreground">
+                    {transaction.created_by || "Unknown"}
+                  </p>
                 </div>
               </div>
 
-              {transaction.approved_by_email && (
+              {transaction.approved_by && (
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-status-approved-bg">
                     <CheckCircle className="h-4 w-4 text-status-approved" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      {transaction.status === 'REJECTED' ? 'Rejected By' : 'Approved By'}
+                      {transaction.status === "REJECTED"
+                        ? "Rejected By"
+                        : "Approved By"}
                     </p>
-                    <p className="font-medium text-foreground">{transaction.approved_by_email}</p>
+                    <p className="font-medium text-foreground">
+                      {transaction.approved_by}
+                    </p>
                   </div>
                 </div>
               )}
@@ -304,7 +378,10 @@ const TransactionDetail = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Created At</p>
                   <p className="font-medium text-foreground">
-                    {format(new Date(transaction.created_at), 'MMMM d, yyyy HH:mm:ss')}
+                    {format(
+                      new Date(transaction.created_at),
+                      "MMMM d, yyyy HH:mm:ss"
+                    )}
                   </p>
                 </div>
               </div>
@@ -316,7 +393,10 @@ const TransactionDetail = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Last Updated</p>
                   <p className="font-medium text-foreground">
-                    {format(new Date(transaction.updated_at), 'MMMM d, yyyy HH:mm:ss')}
+                    {format(
+                      new Date(transaction.updated_at),
+                      "MMMM d, yyyy HH:mm:ss"
+                    )}
                   </p>
                 </div>
               </div>
@@ -326,41 +406,54 @@ const TransactionDetail = () => {
       </div>
 
       {/* Confirmation Dialog */}
-      <AlertDialog 
-        open={confirmDialog.open} 
-        onOpenChange={(open) => !open && setConfirmDialog({ open: false, type: null })}
+      <AlertDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) =>
+          !open && setConfirmDialog({ open: false, type: null })
+        }
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmDialog.type === 'approve' && 'Approve Transaction'}
-              {confirmDialog.type === 'reject' && 'Reject Transaction'}
-              {confirmDialog.type === 'submit' && 'Submit for Approval'}
-              {confirmDialog.type === 'execute' && 'Execute Transaction'}
+              {confirmDialog.type === "approve" && "Approve Transaction"}
+              {confirmDialog.type === "reject" && "Reject Transaction"}
+              {confirmDialog.type === "submit" && "Submit for Approval"}
+              {confirmDialog.type === "execute" && "Execute Transaction"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmDialog.type === 'approve' && `Are you sure you want to approve ${transaction.reference}?`}
-              {confirmDialog.type === 'reject' && `Are you sure you want to reject ${transaction.reference}? This action cannot be undone.`}
-              {confirmDialog.type === 'submit' && `Submit ${transaction.reference} for approval?`}
-              {confirmDialog.type === 'execute' && `Execute ${transaction.reference}? This will process the payment of ${formatAmount(transaction.amount, transaction.currency)}.`}
+              {confirmDialog.type === "approve" &&
+                `Are you sure you want to approve ${transaction.reference}?`}
+              {confirmDialog.type === "reject" &&
+                `Are you sure you want to reject ${transaction.reference}? This action cannot be undone.`}
+              {confirmDialog.type === "submit" &&
+                `Submit ${transaction.reference} for approval?`}
+              {confirmDialog.type === "execute" &&
+                `Execute ${
+                  transaction.reference
+                }? This will process the payment of ${formatAmount(
+                  transaction.amount,
+                  transaction.currency
+                )}.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => confirmDialog.type && handleAction(confirmDialog.type)}
+              onClick={() =>
+                confirmDialog.type && handleAction(confirmDialog.type)
+              }
               className={
-                confirmDialog.type === 'reject' 
-                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' 
-                  : confirmDialog.type === 'execute'
-                  ? 'bg-status-executed text-primary-foreground hover:bg-status-executed/90'
-                  : 'gradient-primary text-primary-foreground'
+                confirmDialog.type === "reject"
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  : confirmDialog.type === "execute"
+                  ? "bg-status-executed text-primary-foreground hover:bg-status-executed/90"
+                  : "gradient-primary text-primary-foreground"
               }
             >
-              {confirmDialog.type === 'approve' && 'Approve'}
-              {confirmDialog.type === 'reject' && 'Reject'}
-              {confirmDialog.type === 'submit' && 'Submit'}
-              {confirmDialog.type === 'execute' && 'Execute'}
+              {confirmDialog.type === "approve" && "Approve"}
+              {confirmDialog.type === "reject" && "Reject"}
+              {confirmDialog.type === "submit" && "Submit"}
+              {confirmDialog.type === "execute" && "Execute"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
