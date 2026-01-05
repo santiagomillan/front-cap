@@ -1,6 +1,6 @@
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   FilePlus,
@@ -10,47 +10,41 @@ import {
   ArrowLeftRight,
   Menu,
   X,
-} from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface NavItem {
   label: string;
   path: string;
   icon: React.ElementType;
-  roles: ('OPERATOR' | 'APPROVER')[];
+  roles: ("OPERATOR" | "APPROVER")[];
 }
 
 const navItems: NavItem[] = [
   {
-    label: 'Dashboard',
-    path: '/dashboard',
-    icon: LayoutDashboard,
-    roles: ['OPERATOR', 'APPROVER'],
-  },
-  {
-    label: 'Create Transaction',
-    path: '/transactions/create',
+    label: "Create Transaction",
+    path: "/transactions/create",
     icon: FilePlus,
-    roles: ['OPERATOR'],
+    roles: ["OPERATOR"],
   },
   {
-    label: 'My Transactions',
-    path: '/transactions',
+    label: "My Transactions",
+    path: "/transactions",
     icon: FileText,
-    roles: ['OPERATOR'],
+    roles: ["OPERATOR"],
   },
   {
-    label: 'Pending Approvals',
-    path: '/approvals',
+    label: "Pending Approvals",
+    path: "/approvals",
     icon: CheckCircle,
-    roles: ['APPROVER'],
+    roles: ["APPROVER"],
   },
   {
-    label: 'All Transactions',
-    path: '/transactions',
+    label: "All Transactions",
+    path: "/transactions",
     icon: FileText,
-    roles: ['APPROVER'],
+    roles: ["APPROVER"],
   },
 ];
 
@@ -99,11 +93,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </div>
               <div className="h-9 w-9 rounded-full gradient-primary flex items-center justify-center">
                 <span className="text-sm font-medium text-primary-foreground">
-                  {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+                  {user?.name?.[0]?.toUpperCase() ||
+                    user?.email?.[0]?.toUpperCase()}
                 </span>
               </div>
             </div>
-            
+
             <Button
               variant="ghost"
               size="icon"
@@ -121,7 +116,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               className="lg:hidden text-sidebar-foreground hover:bg-sidebar-accent"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -134,16 +133,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              
+
               return (
                 <Link
                   key={item.path + item.label}
                   to={item.path}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
+                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                     isActive
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -156,7 +155,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div 
+          <div
             className="fixed inset-0 z-40 bg-foreground/50 lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
@@ -165,25 +164,25 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {/* Sidebar - Mobile */}
         <aside
           className={cn(
-            'fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] w-64 bg-card border-r border-border transform transition-transform duration-300 lg:hidden',
-            isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+            "fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] w-64 bg-card border-r border-border transform transition-transform duration-300 lg:hidden",
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
           <nav className="flex-1 p-4 space-y-1">
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              
+
               return (
                 <Link
                   key={item.path + item.label}
                   to={item.path}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
+                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                     isActive
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -196,9 +195,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-8 min-h-[calc(100vh-4rem)]">
-          <div className="animate-fade-in">
-            {children}
-          </div>
+          <div className="animate-fade-in">{children}</div>
         </main>
       </div>
     </div>

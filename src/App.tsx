@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import CreateTransaction from "./pages/CreateTransaction";
 import TransactionList from "./pages/TransactionList";
 import TransactionDetail from "./pages/TransactionDetail";
@@ -25,20 +24,11 @@ const App = () => (
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
-            
-            {/* Redirect root to dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            
+
+            {/* Redirect root to transactions */}
+            <Route path="/" element={<Navigate to="/transactions" replace />} />
+
             {/* Protected Routes - Both Roles */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            
             <Route
               path="/transactions"
               element={
@@ -47,7 +37,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            
+
             <Route
               path="/transactions/:id"
               element={
@@ -56,27 +46,27 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            
+
             {/* Operator Only Routes */}
             <Route
               path="/transactions/create"
               element={
-                <ProtectedRoute allowedRoles={['OPERATOR']}>
+                <ProtectedRoute allowedRoles={["OPERATOR"]}>
                   <CreateTransaction />
                 </ProtectedRoute>
               }
             />
-            
+
             {/* Approver Only Routes */}
             <Route
               path="/approvals"
               element={
-                <ProtectedRoute allowedRoles={['APPROVER']}>
+                <ProtectedRoute allowedRoles={["APPROVER"]}>
                   <PendingApprovals />
                 </ProtectedRoute>
               }
             />
-            
+
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
