@@ -1,28 +1,40 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeftRight, Loader2, AlertCircle } from 'lucide-react';
-import { z } from 'zod';
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ArrowLeftRight, Loader2, AlertCircle } from "lucide-react";
+import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoading } = useAuth();
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
+
+  const from =
+    (location.state as { from?: { pathname: string } })?.from?.pathname ||
+    "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +45,8 @@ const Login = () => {
     if (!result.success) {
       const fieldErrors: { email?: string; password?: string } = {};
       result.error.errors.forEach((err) => {
-        if (err.path[0] === 'email') fieldErrors.email = err.message;
-        if (err.path[0] === 'password') fieldErrors.password = err.message;
+        if (err.path[0] === "email") fieldErrors.email = err.message;
+        if (err.path[0] === "password") fieldErrors.password = err.message;
       });
       setErrors(fieldErrors);
       return;
@@ -44,7 +56,7 @@ const Login = () => {
       await login(email, password);
       navigate(from, { replace: true });
     } catch {
-      setErrors({ general: 'Invalid email or password. Please try again.' });
+      setErrors({ general: "Invalid email or password. Please try again." });
     }
   };
 
@@ -66,7 +78,7 @@ const Login = () => {
             Sign in to your Transaction Management account
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
             {errors.general && (
@@ -75,7 +87,7 @@ const Login = () => {
                 {errors.general}
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -84,7 +96,7 @@ const Login = () => {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={errors.email ? 'border-destructive' : ''}
+                className={errors.email ? "border-destructive" : ""}
                 autoComplete="email"
                 disabled={isLoading}
               />
@@ -101,7 +113,7 @@ const Login = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={errors.password ? 'border-destructive' : ''}
+                className={errors.password ? "border-destructive" : ""}
                 autoComplete="current-password"
                 disabled={isLoading}
               />
@@ -121,15 +133,10 @@ const Login = () => {
                   Signing in...
                 </>
               ) : (
-                'Sign in'
+                "Sign in"
               )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Demo credentials:</p>
-            <p className="mt-1">Operator: operator@test.com / Approver: approver@test.com</p>
-          </div>
         </CardContent>
       </Card>
     </div>
